@@ -1,0 +1,156 @@
+:root {
+  --utp-purple: #6f2c91;      /* Color principal */
+  --utp-dark-purple: #4a148c; /* Hover */
+  --bg-body:    #f5f5f7;      /* Fondo general */
+  --bg-menu:    #ffffff;      /* Fondo menú */
+  --text-main:  #333333;
+  --border-color: #e0e0e0;
+}
+
+/* --- Layout Principal (Flexbox) --- */
+body {
+  display: flex; /* Pone el menú y el contenido lado a lado */
+  min-height: 100vh;
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-body);
+  color: var(--text-main);
+}
+
+/* --- Menú Lateral --- */
+.menu {
+  width: 260px;
+  background-color: var(--bg-menu);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  flex-shrink: 0; /* Evita que el menú se encoja */
+  box-shadow: 2px 0 5px rgba(0,0,0,0.02);
+}
+
+.menu h4 {
+  color: var(--utp-purple);
+  font-weight: 800;
+  margin-bottom: 30px;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+/* Estilos de los enlaces del menú (Accordion override) */
+.accordion-button {
+  color: var(--text-main);
+  font-weight: 600;
+  background-color: transparent;
+  box-shadow: none !important; /* Quita el brillo azul de bootstrap */
+}
+
+.accordion-button:not(.collapsed) {
+  color: var(--utp-purple);
+  background-color: rgba(111, 44, 145, 0.05);
+}
+
+.accordion-button:focus {
+  border-color: transparent;
+}
+
+.accordion-body a {
+  display: block;
+  padding: 8px 12px;
+  text-decoration: none;
+  color: #555;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.accordion-body a:hover {
+  background-color: rgba(111, 44, 145, 0.08);
+  color: var(--utp-purple);
+  transform: translateX(3px);
+}
+
+/* --- Contenedor de Tarjetas (Grid) --- */
+.ContenedorGrupos {
+  flex-grow: 1;
+  padding: 40px;
+  display: grid;
+  /* Crea columnas automáticas que no bajen de 320px */
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+  gap: 25px;
+  align-content: start; /* Alinea las tarjetas arriba */
+}
+
+/* --- Tarjetas (Cards) --- */
+.card {
+  background: white;
+  border: 1px solid white;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(111, 44, 145, 0.15);
+  border-color: rgba(111, 44, 145, 0.1);
+}
+
+.card h3.card-title {
+  color: var(--utp-purple);
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  line-height: 1.4;
+}
+
+.card p {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.card p strong {
+  color: #333;
+}
+
+.card .fecha {
+  font-size: 0.85rem;
+  color: #999;
+  margin-top: auto; /* Empuja la fecha hacia abajo si hay espacio */
+  margin-bottom: 15px;
+}
+
+/* Botón "Solicitar Unirse" */
+.btn-card {
+  display: block;
+  width: 100%;
+  text-align: center;
+  background-color: var(--utp-purple);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color 0.2s;
+  border: none;
+}
+
+.btn-card:hover {
+  background-color: var(--utp-dark-purple);
+  color: white;
+}
+
+/* Estilo para links de peligro (cerrar sesión) */
+.text-danger {
+    color: #dc3545 !important;
+}
+.text-danger:hover {
+    background-color: rgba(220, 53, 69, 0.05) !important;
+}
