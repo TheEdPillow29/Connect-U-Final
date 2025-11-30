@@ -1,17 +1,12 @@
 <?php
 /**
  * procesar_login.php
- * Versión simplificada para aceptar contraseñas tal cual están en la base de datos.
  * Ubicación: /src/procesos/procesar_login.php
  */
 
-// 1. Iniciar Sesión
 session_start();
-
-// 2. Conexión a la DB (Necesaria para que funcione en la carpeta nueva)
 require_once '../db/config_db.php'; 
 
-// 3. Recoger datos
 $correo = $_POST['email'] ?? '';
 $contrasena = $_POST['contrasena'] ?? '';
 
@@ -20,22 +15,48 @@ if (empty($correo) || empty($contrasena)) {
     exit;
 }
 
-// 4. Buscar usuario en la tabla 'usuario' (minúsculas, según tu captura)
+// 1. Buscar al usuario en la tabla general
 $sql = "SELECT IDusuario, contrasena FROM usuario WHERE correo = :correo LIMIT 1"; 
 $stmt = $conexion->prepare($sql);
 $stmt->execute(['correo' => $correo]);
 $usuario_db = $stmt->fetch();
 
-// 5. Comparación DIRECTA (Sin seguridad moderna, solo funcionalidad)
 if ($usuario_db) {
-    // Compara el texto escrito directamente con el texto en la base de datos
-    if ($contrasena === $usuario_db['contrasena']) {
-        
-        // ¡Éxito! Guardamos sesión
+    // 2. Verificar contraseña (soportando migración de antiguas)
+    $login_exitoso = false;
+    $contrasena_almacenada = $usuario_db['contrasena'];
+
+    if (password_verify($contrasena, $contrasena_almacenada)) {
+        $login_exitoso = true;
+    } elseif ($contrasena === $contrasena_almacenada) {
+        $login_exitoso = true;
+        // Migración automática a hash seguro
+        $nuevo_hash = password_hash($contrasena, PASSWORD_DEFAULT);
+        $sql_update = "UPDATE usuario SET contrasena = :hash WHERE IDusuario = :id";
+        $stmt_update = $conexion->prepare($sql_update);
+        $stmt_update->execute(['hash' => $nuevo_hash, 'id' => $usuario_db['IDusuario']]);
+    }
+
+    if ($login_exitoso) {
         $_SESSION['IDusuario'] = $usuario_db['IDusuario'];
-        
-        // Redirigimos a la principal usando la ruta correcta
-        header("Location: " . URL_ROOT . "/public/Principal.php");
+        $_SESSION['mensaje_exito'] = "¡Bienvenido!";
+
+        // --- 3. LÓGICA DE ROLES (NUEVO) ---
+        // Preguntamos: ¿Este ID está en la tabla de responsables?
+        $sql_rol = "SELECT tipoResponsable FROM responsable WHERE IDusuario = :id LIMIT 1";
+        $stmt_rol = $conexion->prepare($sql_rol);
+        $stmt_rol->execute(['id' => $usuario_db['IDusuario']]);
+        $es_responsable = $stmt_rol->fetch();
+
+        if ($es_responsable) {
+            // ¡ES UN JEFE! -> Va al panel de aprobación
+            $_SESSION['rol'] = 'Responsable'; // Guardamos el rol por si acaso
+            header("Location: " . URL_ROOT . "/public/panel_admin.php");
+        } else {
+            // ES UN ESTUDIANTE -> Va al panel normal
+            $_SESSION['rol'] = 'Estudiante';
+            header("Location: " . URL_ROOT . "/public/Principal.php");
+        }
         exit();
 
     } else {

@@ -1,71 +1,58 @@
 <?php
 /**
  * procesar_solicitud.php
- * Procesa el formulario de solicitud de ingreso a un grupo y registra el estado 'Pendiente' en la BD.
  * Ubicación: /src/procesos/procesar_solicitud.php
  */
 
-// 1. MODULO DE SEGURIDAD: Inicia sesión, verifica la autenticación y nos provee $IDusuario.
-// Sube un nivel (..) para entrar a 'src/libs'
-include '../libs/verificar_sesion.php'; 
+// 1. Inclusiones (Rutas relativas dentro del servidor funcionan bien aquí)
+require_once '../libs/verificar_sesion.php'; 
+require_once '../db/config_db.php'; 
 
-// 2. MODULO DE CONEXIÓN: Conecta con la DB. Nos provee $conexion.
-// Sube un nivel (..) para entrar a 'src/db'
-include '../db/config_db.php'; 
-
-// La variable $IDusuario y $conexion ya están disponibles
-
-// 3. PROCESAR DATOS DEL FORMULARIO
+// 2. Procesar Datos
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Validación de datos mínimos
+    // Validación
     if (empty($_POST['ID_grupo']) || !isset($_POST['mensaje'])) {
-        // En lugar de die(), usamos la redirección con mensaje de error de sesión
-        $_SESSION['mensaje_error'] = "⚠️ Faltan datos necesarios para enviar la solicitud.";
-        header("Location: ../public/Principal.php");
+        $_SESSION['mensaje_error'] = "⚠️ Faltan datos necesarios.";
+        // 🛑 CORRECCIÓN: Usar URL_ROOT
+        header("Location: " . URL_ROOT . "/public/Principal.php");
         exit;
     }
 
     $ID_grupo = $_POST['ID_grupo'];
     $mensaje = $_POST['mensaje'];
-
-    // Generar ID de solicitud con el formato IRN-XXXXX
-    $numero_aleatorio = mt_rand(10000, 99999);
-    $ID_solicitud = 'IRN-' . $numero_aleatorio;
-
-    $fecha = date('Y-m-d H:i:s'); // Usar fecha y hora para mayor precisión
+    $ID_solicitud = 'SOL-' . mt_rand(10000, 99999);
+    $fecha = date('Y-m-d H:i:s');
     $estado = 'Pendiente';
 
     try {
-        // 4. Preparar e insertar la solicitud (uso de $conexion centralizado)
         $sql = "INSERT INTO solicitudgrupo (ID_solicitud, IDusuario, ID_grupo, mensaje, fecha, estado)
-                VALUES (:ID_solicitud, :IDusuario, :ID_grupo, :mensaje, :fecha, :estado)";
+                VALUES (:ids, :idu, :idg, :msj, :fecha, :est)";
         
         $stmt = $conexion->prepare($sql);
         $stmt->execute([
-            ':ID_solicitud' => $ID_solicitud,
-            ':IDusuario' => $IDusuario,
-            ':ID_grupo' => $ID_grupo,
-            ':mensaje' => $mensaje,
+            ':ids' => $ID_solicitud,
+            ':idu' => $IDusuario,
+            ':idg' => $ID_grupo,
+            ':msj' => $mensaje,
             ':fecha' => $fecha,
-            ':estado' => $estado
+            ':est' => $estado
         ]);
 
-        // 5. Guardar un mensaje de éxito para mostrar en Principal.php
-        $_SESSION['mensaje_exito'] = "✅ Tu solicitud fue enviada al administrador del grupo con éxito.";
+        $_SESSION['mensaje_exito'] = "✅ Solicitud enviada exitosamente.";
 
-        // Redirigir a la página principal (RUTA AJUSTADA)
-        header("Location: ../public/Principal.php");
+        // 🛑 CORRECCIÓN: Usar URL_ROOT para ir a Mis Solicitudes
+        header("Location: " . URL_ROOT . "/public/mis_solicitudes.php");
         exit;
 
     } catch (PDOException $e) {
-        // Manejo de error de base de datos
-        $_SESSION['mensaje_error'] = "❌ Error al guardar la solicitud: " . $e->getMessage();
-        header("Location: ../public/Principal.php");
+        $_SESSION['mensaje_error'] = "Error al guardar: " . $e->getMessage();
+        // 🛑 CORRECCIÓN: Usar URL_ROOT
+        header("Location: " . URL_ROOT . "/public/Principal.php");
         exit;
     }
 } else {
-    // Si no es un POST (acceso directo), redirigir a la página principal (RUTA AJUSTADA)
-    header("Location: ../public/Principal.php");
+    // Acceso directo no permitido
+    header("Location: " . URL_ROOT . "/public/Principal.php");
     exit;
 }
 ?>

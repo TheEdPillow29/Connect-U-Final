@@ -1,88 +1,88 @@
 <?php
-// Inicia la sesión para poder usar las variables de sesión más adelante.
-session_start();
+/**
+ * solicitud_grupo.php
+ * Ubicación: /public/solicitud_grupo.php
+ */
 
-// 1. Captura el ID del grupo desde la URL.
-// Si no se proporciona un ID, muestra un error.
-$id_grupo = $_GET['id_grupo'] ?? null;
-if (!$id_grupo) {
-    die("Error: No se ha especificado un grupo.");
+require_once '../src/libs/verificar_sesion.php'; 
+require_once '../src/db/config_db.php'; 
+
+$ID_grupo_url = $_GET['id_grupo'] ?? null;
+$nombre_grupo = 'Grupo Desconocido';
+
+if (!$ID_grupo_url) {
+    header("Location: Principal.php");
+    exit;
+}
+
+// Obtener nombre del grupo para mostrarlo
+$sql = "SELECT nombreGrupo FROM Grupo WHERE ID_grupo = :id";
+$stmt = $conexion->prepare($sql);
+$stmt->execute(['id' => $ID_grupo_url]);
+$grupo = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if ($grupo) {
+    $nombre_grupo = $grupo['nombreGrupo'];
 }
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Formulario de Solicitud</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitar Unirse</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/Bonito.css">
     <style>
         body {
-            background: linear-gradient(135deg, #6f42c1, #a774ff);
-            min-height: 100vh;
+            background-color: #f0f0f0;
             display: flex;
-            justify-content: center;
             align-items: center;
-            font-family: 'Segoe UI', sans-serif;
-            padding: 20px;
+            justify-content: center;
+            min-height: 100vh;
         }
         .form-container {
             background-color: #fff;
-            padding: 40px 35px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(111, 66, 193, 0.3);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 480px;
-        }
-        h2 {
-            margin-bottom: 30px;
-            font-weight: 700;
-            color: #4a4a4a;
-            text-align: center;
-        }
-        textarea {
-            border: 1.8px solid #d1c4e9;
-            border-radius: 8px;
-            padding: 12px 15px;
-            resize: vertical;
-            min-height: 120px;
-        }
-        textarea:focus {
-            border-color: #6f42c1;
-            outline: none;
-            box-shadow: 0 0 8px rgba(111, 66, 193, 0.3);
+            max-width: 500px;
+            border-top: 6px solid #6f2c91;
         }
         .btn-submit {
-            margin-top: 20px;
-            background-color: #6f42c1;
-            border: none;
-            width: 100%;
-            padding: 14px;
-            font-weight: 700;
+            background-color: #6f2c91;
             color: white;
-            border-radius: 10px;
-            transition: background-color 0.3s ease;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            width: 100%;
+            font-weight: 700;
+            margin-top: 20px;
         }
-        .btn-submit:hover {
-            background-color: #5a379c;
-        }
+        .btn-submit:hover { background-color: #5a2376; color: white; }
     </style>
 </head>
 <body>
 
 <div class="form-container">
-    <h2>Enviar Solicitud</h2>
+    <h3 class="text-center fw-bold mb-2" style="color: #333;">Unirse al Grupo</h3>
+    <p class="text-center text-muted mb-4">Solicitud para: <strong><?= htmlspecialchars($nombre_grupo) ?></strong></p>
     
-    <form action="/src/procesos/procesar_solicitud.php" method="POST">
-
-        <input type="hidden" name="ID_grupo" value="<?= htmlspecialchars($id_grupo) ?>">
+    <!-- 🛑 RUTA CORREGIDA AQUÍ (Apunta a src/procesos) 🛑 -->
+    <form action="/ProyectoCoonectU/src/procesos/procesar_solicitud.php" method="POST">
         
-        <div class="mb-4">
-            <label for="mensaje" class="form-label">Mensaje para la solicitud</label>
-            <textarea id="mensaje" name="mensaje" class="form-control" placeholder="Escribe aquí por qué quieres unirte..." required></textarea>
+        <input type="hidden" name="ID_grupo" value="<?= htmlspecialchars($ID_grupo_url) ?>">
+
+        <div class="mb-3">
+            <label for="mensaje" class="form-label fw-bold text-secondary">Mensaje al Administrador</label>
+            <textarea id="mensaje" name="mensaje" class="form-control" rows="4" 
+                      placeholder="Hola, me gustaría unirme porque..." required></textarea>
+            <div class="form-text">Explica brevemente tu interés.</div>
         </div>
 
         <button type="submit" class="btn-submit">Enviar Solicitud</button>
+        <a href="Principal.php" class="btn btn-link w-100 mt-2 text-decoration-none text-muted">Cancelar</a>
     </form>
 </div>
 

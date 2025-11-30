@@ -1,44 +1,41 @@
 <?php
 /**
  * procesar_crear_grupo.php
- * Procesa el formulario de CreacionGrupo.php y realiza las inserciones en la base de datos
- * usando transacciones PDO.
  * Ubicación: /src/procesos/procesar_crear_grupo.php
  */
 
-// 1. MODULO DE SEGURIDAD: Inicia sesión, verifica la autenticación y nos provee $IDusuario.
-// Sube un nivel (..) para entrar a 'src/libs'
-include '../libs/verificar_sesion.php'; 
-
-// 2. MODULO DE CONEXIÓN: Conecta con la DB. Nos provee $conexion.
-// Sube un nivel (..) para entrar a 'src/db'
-include '../db/config_db.php'; 
-
-// La variable $IDusuario y $conexion ya están disponibles
+require_once '../libs/verificar_sesion.php'; 
+require_once '../db/config_db.php'; 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_POST['nombreGrupo']) || empty($_POST['tipoGrupo'])) {
-    // Redirección si faltan datos esenciales o no es un POST válido
-    header("Location: ../public/CreacionGrupo.php?error=Faltan+datos");
+    header("Location: " . URL_ROOT . "/public/CreacionGrupo.php?error=Faltan+datos");
     exit;
 }
 
-// 3. CAPTURA DE DATOS
+// --- DATOS GENERALES ---
 $numero_aleatorio = mt_rand(10000, 99999);
-$ID_grupo = 'RHD-' . $numero_aleatorio; // Generación de ID único
+$ID_grupo = 'RHD-' . $numero_aleatorio;
 
 $nombreGrupo = $_POST['nombreGrupo'];
 $descripcion = $_POST['descripcion'];
 $cupoMaximo = $_POST['cupoMaximo'];
 $tipoGrupo = $_POST['tipoGrupo'];
-$IDcreador = $IDusuario; // Tomado del módulo de sesión
+$IDcreador = $IDusuario;
 $fecha = date('Y-m-d H:i:s');
-$estado = 'Activo';
 
-// 4. INICIO DE TRANSACCIÓN (Para asegurar que todas las inserciones sean exitosas o ninguna)
+// --- LÓGICA DE ESTADO ---
+$estado = 'Activo';
+$mensaje_final = "✅ ¡Grupo '{$nombreGrupo}' creado y publicado con éxito!";
+
+if ($tipoGrupo === 'Voluntariado') {
+    $estado = 'Pendiente';
+    $mensaje_final = "⏳ Grupo creado. Estado: PENDIENTE de validación.";
+}
+
 try {
     $conexion->beginTransaction();
 
-    // Insertar en la tabla principal 'Grupo'
+    // 1. Insertar en tabla GRUPO (El Dueño)
     $sql_grupo = "INSERT INTO Grupo (ID_grupo, nombreGrupo, descripcion, administradorGrupo, fecha, estado, cupoMaximo) 
                   VALUES (:ID_grupo, :nombreGrupo, :descripcion, :administradorGrupo, :fecha, :estado, :cupoMaximo)";
     $stmt_grupo = $conexion->prepare($sql_grupo);
@@ -52,7 +49,7 @@ try {
         ':cupoMaximo' => $cupoMaximo
     ]);
 
-    // Insertar en la tabla específica del tipo de grupo
+    // 2. Insertar en tabla ESPECÍFICA (Detalles)
     switch ($tipoGrupo) {
         case 'Estudio':
             $sql_tipo = "INSERT INTO grupoestudio (ID_grupo, Materia, Turno, Modalidad) VALUES (:ID_grupo, :materia, :turno, :modalidad)";
@@ -85,29 +82,43 @@ try {
                 ':comunidad' => $_POST['comunidadBeneficiada'],
                 ':lugar' => $_POST['lugarActividad']
             ]);
+
+            $id_validacion = 'VAL-' . mt_rand(10000, 99999);
+            $sql_val = "INSERT INTO validacion (ID_validacion, ID_grupo, estadoValidacion, fechaValidacion) 
+                        VALUES (:idval, :idgrupo, 'Pendiente', :fecha)";
+            $stmt_val = $conexion->prepare($sql_val);
+            $stmt_val->execute([':idval' => $id_validacion, ':idgrupo' => $ID_grupo, ':fecha' => $fecha]);
             break;
     }
 
-    // Si todo fue bien, confirmar los cambios
+    // 3. ¡PASO NUEVO CRÍTICO! AGREGAR AL CREADOR COMO MIEMBRO
+    // Esto hace que el conteo inicie en 1 y que aparezcas en la lista de miembros.
+    $id_miembro_creador = 'MEM-' . mt_rand(10000, 99999);
+    $sql_auto_join = "INSERT INTO miembrosgrupos (ID_miembro, ID_usuario, ID_grupo) VALUES (:idmem, :iduser, :idgrupo)";
+    $stmt_auto = $conexion->prepare($sql_auto_join);
+    $stmt_auto->execute([
+        ':idmem' => $id_miembro_creador,
+        ':iduser' => $IDcreador, // Tú eres el usuario
+        ':idgrupo' => $ID_grupo
+    ]);
+
     $conexion->commit();
 
-    // 5. REDIRECCIÓN DE ÉXITO (Reemplaza el bloque HTML de éxito)
-    // Guardar mensaje de éxito en la sesión
-    $_SESSION['mensaje_exito'] = "✅ ¡Grupo '{$nombreGrupo}' creado con éxito!";
-
-    // Redirigir a la página principal (RUTA AJUSTADA)
-    header("Location: ../public/Principal.php"); 
+    $_SESSION['mensaje_exito'] = $mensaje_final;
+    
+    if ($tipoGrupo === 'Voluntariado') {
+        header("Location: " . URL_ROOT . "/public/mis_grupos.php");
+    } else {
+        header("Location: " . URL_ROOT . "/public/Principal.php");
+    }
     exit;
 
 } catch (PDOException $e) {
-    // 6. MANEJO DE ERROR Y ROLLBACK
     if ($conexion->inTransaction()) {
-        $conexion->rollBack(); // Deshacer todos los cambios en la DB
+        $conexion->rollBack();
     }
-    
-    // Guardar mensaje de error en la sesión y redirigir al formulario de creación (RUTA AJUSTADA)
-    $_SESSION['mensaje_error'] = "❌ Error al crear el grupo: " . $e->getMessage();
-    header("Location: ../public/CreacionGrupo.php?error=db");
+    $_SESSION['mensaje_error'] = "Error al crear el grupo: " . $e->getMessage();
+    header("Location: " . URL_ROOT . "/public/CreacionGrupo.php");
     exit;
 }
 ?>
