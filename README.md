@@ -99,26 +99,3 @@ Si has importado la base de datos de ejemplo, puedes probar el acceso con:
 - Contraseña:  123456
 
 ================================================================================
-## Arquitectura del Sistema
-
-El proyecto sigue una arquitectura en capas para asegurar la escalabilidad y el mantenimiento, separando claramente las responsabilidades.
-
-![Diagrama de Arquitectura]
-<img width="866" height="264" alt="Image" src="https://github.com/user-attachments/assets/6284569f-1b6b-4b77-b1e8-22225e75c736" />
-
-### Componentes Principales:
-- **Presentación:** Maneja la interacción con el usuario (Tecnologías UI).
-- **Gestión & Negocio:** Contiene la lógica core del sistema y las reglas de validación.
-- **Acceso a Datos:** Capa de persistencia que se comunica con librerías externas (Oracle, NHibernate).
-
----
-
-##  Flujos de Usuario (User Flows)
-
-Para procesos críticos como la **Creación de Grupos**, implementamos validaciones automáticas para garantizar la integridad de los datos antes de la persistencia.
-
-![Diagrama de Actividad]
-<img width="359" height="613" alt="Image" src="https://github.com/user-attachments/assets/042c789b-2a9f-4f32-bb52-9fa2162c8f78" />
-
-
-> *Nota: El diagrama detalla la lógica de decisión entre grupos de tipo "Voluntariado" y grupos de "Estudio/Investigación".*
