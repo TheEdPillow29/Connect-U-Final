@@ -12,7 +12,7 @@ define('DB_PASS', 'h9!(pZ.P2GYYbFe/');
 
 // 🛑 CORRECCIÓN CRÍTICA AQUÍ 🛑
 // Debe ser solo la carpeta del proyecto, SIN '/src' al final.
-define('URL_ROOT', '/ProyectoCoonectU'); 
+define('URL_ROOT', '/Connect-U-Final'); 
 
 $conexion = null; 
 
