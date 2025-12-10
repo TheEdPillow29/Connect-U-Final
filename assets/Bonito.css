@@ -1,0 +1,246 @@
+:root {
+  --utp-purple: #6f2c91;
+  --utp-dark-purple: #4a148c;
+  --utp-gold:   #fdb827;
+  --bg-light:   #f4f6f9; /* Un gris azulado muy suave, más profesional */
+  --text-main:  #2c3e50;
+  --text-muted: #6c757d;
+  --border-radius: 12px;
+  --sidebar-width: 260px;
+}
+
+body {
+  display: flex;
+  min-height: 100vh;
+  margin: 0;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text-main);
+}
+
+/* --- MENÚ LATERAL (Sidebar) --- */
+.menu {
+  width: var(--sidebar-width);
+  background-color: #ffffff;
+  border-right: 1px solid #e9ecef;
+  display: flex;
+  flex-direction: column;
+  padding: 25px;
+  flex-shrink: 0;
+  position: sticky; /* El menú se queda quieto al hacer scroll */
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  box-shadow: 4px 0 10px rgba(0,0,0,0.02);
+}
+
+.menu h4 {
+  color: var(--utp-purple);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+/* Enlaces del Menú */
+.accordion-button {
+    font-weight: 600;
+    color: #495057;
+    padding: 1rem 0.5rem;
+}
+.accordion-button:not(.collapsed) {
+    color: var(--utp-purple);
+    background-color: transparent;
+    box-shadow: none;
+}
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: rgba(0,0,0,0);
+}
+.accordion-body {
+    padding: 0 10px 10px 10px;
+}
+.accordion-body a {
+    display: block;
+    padding: 10px 15px;
+    color: #6c757d;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+}
+.accordion-body a:hover, .accordion-body a.active {
+    background-color: rgba(111, 44, 145, 0.08);
+    color: var(--utp-purple);
+    font-weight: 600;
+    transform: translateX(5px);
+}
+
+/* --- CONTENEDOR PRINCIPAL --- */
+.ContenedorGrupos {
+  flex-grow: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  max-width: 1400px; /* Evita que se estire demasiado en pantallas gigantes */
+  margin: 0 auto;
+}
+
+/* Título de Sección */
+.page-header h2 {
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+}
+.page-header p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+/* --- GRID DE TARJETAS --- */
+.groups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 30px;
+}
+
+/* --- DISEÑO DE TARJETA PROFESIONAL --- */
+.card-custom {
+    background: white;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    position: relative;
+    border-top: 5px solid var(--utp-purple); /* Detalle de color superior */
+}
+
+.card-custom:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 15px 35px rgba(111, 44, 145, 0.12);
+}
+
+.card-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+}
+.badge-admin { background-color: #e0cffc; color: #5a32a3; }
+.badge-miembro { background-color: #d1e7dd; color: #0f5132; }
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 10px;
+    padding-right: 80px; /* Espacio para el badge */
+}
+
+.card-meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-desc {
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    flex-grow: 1; /* Empuja el botón hacia abajo */
+}
+
+.btn-details {
+    background-color: white;
+    color: var(--utp-purple);
+    border: 2px solid var(--utp-purple);
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    width: 100%;
+    display: block;
+}
+
+.btn-details:hover {
+    background-color: var(--utp-purple);
+    color: white;
+}
+
+/* --- MODAL ESTILIZADO --- */
+.modal-content {
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+}
+.modal-header {
+    background: linear-gradient(135deg, var(--utp-purple), var(--utp-dark-purple));
+    color: white;
+    padding: 20px 30px;
+}
+.modal-title { font-weight: 700; }
+.btn-close-white { filter: invert(1); }
+
+.modal-body { padding: 30px; }
+
+.detail-group {
+    margin-bottom: 25px;
+}
+.detail-group h6 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 5px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f8f9fa;
+}
+.info-row span:first-child { font-weight: 600; color: #555; }
+.info-row span:last-child { color: #333; text-align: right; }
+
+.contact-card {
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+.contact-avatar {
+    width: 50px;
+    height: 50px;
+    background-color: var(--utp-purple);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
