@@ -5,6 +5,7 @@
  */
 
 define('DB_HOST', '127.0.0.1');
+<<<<<<< HEAD
 define('DB_PORT', '3306'); 
 define('DB_NAME', 'sistemagruposv2');
 define('DB_USER', 'root');
@@ -13,6 +14,16 @@ define('DB_PASS', '');
 // 🛑 CORRECCIÓN CRÍTICA AQUÍ 🛑
 // Debe ser solo la carpeta del proyecto, SIN '/src' al final.
 define('URL_ROOT', '/ProyectoCoonectU'); 
+=======
+define('DB_PORT', '3307'); 
+define('DB_NAME', 'sistemagruposv2');
+define('DB_USER', 'AdministradorWeb');
+define('DB_PASS', 'h9!(pZ.P2GYYbFe/');
+
+// 🛑 CORRECCIÓN CRÍTICA AQUÍ 🛑
+// Debe ser solo la carpeta del proyecto, SIN '/src' al final.
+define('URL_ROOT', '/Connect-U-Final'); 
+>>>>>>> b96755cec9e0c5fb6898d99d25b9a629eb88de3f
 
 $conexion = null; 
 
